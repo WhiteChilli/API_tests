@@ -13,12 +13,12 @@ import static io.restassured.RestAssured.given;
 
 public class Api {
 
-//    @BeforeEach
-//    public void setup() {
-//        System.out.println("---> test start");
-//        RestAssured.baseURI = "http://51.250.6.164";
-//        RestAssured.port = 8080;
-//    }
+    @BeforeEach
+    public void setup() {
+        System.out.println("---> test start");
+        RestAssured.baseURI = "http://51.250.6.164";
+        RestAssured.port = 8080;
+    }
 
     @Test
     public void simplePositiveTest() {
@@ -46,6 +46,20 @@ public class Api {
                 statusCode(400);
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {18, 40, 59})
+    public void simpleParamNegativeTest(int id) {
+
+        given().
+                log().
+                all().
+                when().
+                get("/test-orders/{id}", id).
+                then().
+                statusCode(HttpStatus.SC_BAD_REQUEST);
+
+    }
+
 
     @ParameterizedTest
     @ValueSource(ints = {1, 4, 5})
@@ -60,6 +74,7 @@ public class Api {
                 statusCode(HttpStatus.SC_OK);
 
     }
+
 
     @Test
     public void simplePositiveTestAndExtractBodyAsString() {
@@ -118,6 +133,27 @@ public class Api {
                 .assertThat()
                 .statusCode(HttpStatus.SC_OK);
     }
+
+    @Test
+    public void checkPostWithoutHeader() {
+
+        given()
+                .body(order)
+                .log()
+                .all()
+                .post("/test-orders")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE);
+    }
+
+
+//    4. Добавьте отдельный позитивный парметризованный тест,
+//    проверяющий тело ответа для метода GET. В теле нужно проверить
+//    что status = OPEN, для этого используем функционал path.
+
 
 
 
