@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-
 import static io.restassured.RestAssured.given;
+
 
 public class Api {
 
@@ -33,8 +33,6 @@ public class Api {
                 all().
                 statusCode(200);
     }
-
-
 
     @Test
     public void simpleNegativeTest() {
@@ -60,7 +58,6 @@ public class Api {
 
     }
 
-
     @ParameterizedTest
     @ValueSource(ints = {1, 4, 5})
     public void simpleParamPositiveTest(int id) {
@@ -70,11 +67,10 @@ public class Api {
                 all().
                 when().
                 get("/test-orders/{id}", id).
-        then().
+                then().
                 statusCode(HttpStatus.SC_OK);
 
     }
-
 
     @Test
     public void simplePositiveTestAndExtractBodyAsString() {
@@ -84,7 +80,7 @@ public class Api {
                 all().
                 when().
                 get("/test-orders/5").
-        then().
+                then().
                 log().
                 all().
                 statusCode(200).
@@ -92,9 +88,8 @@ public class Api {
                 extract().
                 asString();
 
-        Assertions.assertTrue( responseString.contains("OPEN") );
+        Assertions.assertTrue(responseString.contains("OPEN"));
     }
-
 
     @Test
     public void simplePositiveTestAndExtractParameterFromBody() {
@@ -112,14 +107,13 @@ public class Api {
                 extract().
                 path("id");
 
-        Assertions.assertTrue( responseId > 0 );
+        Assertions.assertTrue(responseId > 0);
     }
-
 
     String order = "{\"customerName\":\"name\",\"customerPhone\":\"123456\",\"comment\":\"comment\"}";
 
     @Test
-    public void createOrderAndCheckStatusCode() {
+    public void createOrderAndCheckStatusCodeOK() {
 
         given()
                 .header("Content-type", "application/json")
@@ -135,7 +129,7 @@ public class Api {
     }
 
     @Test
-    public void checkPostWithoutHeader() {
+    public void checkPostWasWithoutHeader() {
 
         given()
                 .body(order)
@@ -149,12 +143,22 @@ public class Api {
                 .statusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE);
     }
 
-
-//    4. Добавьте отдельный позитивный парметризованный тест,
-//    проверяющий тело ответа для метода GET. В теле нужно проверить
-//    что status = OPEN, для этого используем функционал path.
-
-
-
+    @ParameterizedTest
+    @ValueSource(ints = {5, 6, 7})
+    public void checkStatusOpen(int id) {
+        String responseString = given().
+                log().
+                all().
+                when().
+                get("/test-orders/{id}", id).
+                then().
+                log().
+                all().
+                statusCode(HttpStatus.SC_OK).
+                and().
+                extract().
+                asString();
+        Assertions.assertTrue(responseString.contains("OPEN"));
+    }
 
 }
