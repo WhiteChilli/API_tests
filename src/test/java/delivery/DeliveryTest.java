@@ -50,4 +50,45 @@ public class DeliveryTest {
                 .extract()
                 .response();
     }
+
+    @Test
+    public void noCommentTest() {
+
+        OrderRealDto orderRealDto = new OrderRealDto("testname", "1234567");
+
+        Gson gson = new Gson();
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .body(gson.toJson(orderRealDto))
+                .log()
+                .all()
+                .post("/orders")
+                .then()
+                .log()
+                .all()
+                .extract()
+                .response();
+    }
+
+    @Test
+    public void noTokenTest() {
+
+        OrderRealDto orderRealDto = new OrderRealDto("testname", "1234567");
+
+        Gson gson = new Gson();
+
+        given()
+                .header("Content-type", "application/json")
+                .body(gson.toJson(orderRealDto))
+                .log()
+                .all()
+                .post("/orders")
+                .then()
+                .log()
+                .all()
+                .extract()
+                .response();
+    }
 }
