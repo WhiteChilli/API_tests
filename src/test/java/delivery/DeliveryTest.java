@@ -54,7 +54,7 @@ public class DeliveryTest {
     }
 
     @Test
-    public void noCommentTest() {
+    public void createOrderWithNoCommentTest() {
 
         OrderRealDto orderRealDto = new OrderRealDto("testname", "1234567");
 
@@ -75,7 +75,7 @@ public class DeliveryTest {
     }
 
     @Test
-    public void noTokenTest() {
+    public void createOrderWithNoTokenTest() {
 
         OrderRealDto orderRealDto = new OrderRealDto("testname", "1234567");
 
