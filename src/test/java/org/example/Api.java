@@ -21,7 +21,7 @@ public class Api {
     }
 
     @Test
-    public void simplePositiveTest() {
+    public void getExistingOrderByIDsWithinRange() {
 
         given().
                 log().
@@ -35,7 +35,7 @@ public class Api {
     }
 
     @Test
-    public void simpleNegativeTest() {
+    public void getOrderByIDsOutOfRange() {
 
         given().
                 when().
@@ -46,7 +46,7 @@ public class Api {
 
     @ParameterizedTest
     @ValueSource(ints = {18, 40, 59})
-    public void simpleParamNegativeTest(int id) {
+    public void checkTestOrderUnsuccessfulIDsOutOfRange(int id) {
 
         given().
                 log().
@@ -60,7 +60,7 @@ public class Api {
 
     @ParameterizedTest
     @ValueSource(ints = {1, 4, 5})
-    public void simpleParamPositiveTest(int id) {
+    public void checkTestOrderSuccessfulIDsWithinRange(int id) {
 
         given().
                 log().
@@ -129,7 +129,7 @@ public class Api {
     }
 
     @Test
-    public void checkPostWasWithoutHeader() {
+    public void checkUnsuccessfulOrderCreationWithoutHeader() {
 
         given()
                 .body(order)
@@ -145,7 +145,7 @@ public class Api {
 
     @ParameterizedTest
     @ValueSource(ints = {5, 6, 7})
-    public void checkStatusOpen(int id) {
+    public void checkOrderStatusWithIDsWithinRange(int id) {
         String responseString = given().
                 log().
                 all().
