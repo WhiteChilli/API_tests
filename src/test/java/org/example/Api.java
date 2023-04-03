@@ -31,7 +31,7 @@ public class Api {
                 then().
                 log().
                 all().
-                statusCode(200);
+                statusCode(HttpStatus.SC_OK);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class Api {
                 when().
                 get("http://51.250.6.164:8080/test-orders/15").
                 then().
-                statusCode(400);
+                statusCode(HttpStatus.SC_BAD_REQUEST);
     }
 
     @ParameterizedTest
@@ -69,7 +69,6 @@ public class Api {
                 get("/test-orders/{id}", id).
                 then().
                 statusCode(HttpStatus.SC_OK);
-
     }
 
     @Test
@@ -102,7 +101,7 @@ public class Api {
                 then().
                 log().
                 all().
-                statusCode(200).
+                statusCode(HttpStatus.SC_OK).
                 and().
                 extract().
                 path("id");
@@ -141,6 +140,7 @@ public class Api {
                 .all()
                 .assertThat()
                 .statusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE);
+
     }
 
     @ParameterizedTest

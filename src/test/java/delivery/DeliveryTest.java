@@ -1,11 +1,13 @@
 package delivery;
 
 import com.google.gson.Gson;
-import dto.OrderDto;
+import dto.CourierCreation;
 import dto.OrderRealDto;
 import helpers.SetupFunctions;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,10 +23,6 @@ public class DeliveryTest {
         System.out.println("---> test start");
 
         SetupFunctions setupFunctions = new SetupFunctions();
-
-//        String baseUrl = setupFunctions.getBaseUrl();
-//        String username = setupFunctions.getUsername();
-//        String password = setupFunctions.getPassword();
 
         System.out.println("token: " + setupFunctions.getToken());
 
@@ -49,6 +47,8 @@ public class DeliveryTest {
                 .then()
                 .log()
                 .all()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .response();
     }
@@ -56,11 +56,11 @@ public class DeliveryTest {
     @Test
     public void createOrderWithNoCommentTest() {
 
-        OrderRealDto orderRealDto = new OrderRealDto("testname", "1234567");
+        OrderRealDto orderRealDto = new OrderRealDto("testname", "1234567", null);
 
         Gson gson = new Gson();
 
-        given()
+        Response response = given()
                 .header("Content-type", "application/json")
                 .header("Authorization", "Bearer " + token)
                 .body(gson.toJson(orderRealDto))
@@ -72,6 +72,8 @@ public class DeliveryTest {
                 .all()
                 .extract()
                 .response();
+
+        Assertions.assertEquals(200, response.statusCode());
     }
 
     @Test
@@ -81,7 +83,7 @@ public class DeliveryTest {
 
         Gson gson = new Gson();
 
-        given()
+        Response response = given()
                 .header("Content-type", "application/json")
                 .body(gson.toJson(orderRealDto))
                 .log()
@@ -90,8 +92,12 @@ public class DeliveryTest {
                 .then()
                 .log()
                 .all()
+                .assertThat()
+                .statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .extract()
                 .response();
+
+        Assertions.assertNotNull(response.asString());
     }
 
     @Test
@@ -108,13 +114,12 @@ public class DeliveryTest {
                 .log()
                 .all()
                 .assertThat()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("id");
 
         Assertions.assertEquals(receivedId, id);
     }
-
 
     @Test
     public void getOrderByNonExistentId() {
@@ -130,16 +135,16 @@ public class DeliveryTest {
                 .log()
                 .all()
                 .assertThat()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .response()
                 .asString();
 
-        Assertions.assertEquals("",response);
+        Assertions.assertEquals("", response);
     }
 
     @Test
-    public void getOrders(){
+    public void getOrders() {
 
         int id = orderCreationPrecondition();
 
@@ -155,27 +160,58 @@ public class DeliveryTest {
                 .extract()
                 .as(OrderRealDto[].class);
 
-        for (int i = 0; i < orderRealDtoArray.length; i++ ) {
-//          System.out.println( orderRealDtoArray[i].getId() );
-            deleteOrderById( orderRealDtoArray[i].getId() );
+        for (int i = 0; i < orderRealDtoArray.length; i++) {
+            deleteOrderById(orderRealDtoArray[i].getId());
+            System.out.println("length in loop is " + orderRealDtoArray.length);
         }
 
-        System.out.println();
+        OrderRealDto[] orderRealDtoArrayAfterDeletion = given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .log()
+                .all()
+                .get("/orders")
+                .then()
+                .log()
+                .all()
+                .extract()
+                .as(OrderRealDto[].class);
 
-//        List<OrderRealDto> list = given()
-//                .header("Content-type", "application/json")
-//                .header("Authorization", "Bearer " + token)
-//                .log()
-//                .all()
-//                .get("/orders")
+        Assertions.assertEquals(0, orderRealDtoArrayAfterDeletion.length);
 
     }
 
     @Test
     public void deleteOrderByIdTest() {
-        deleteOrderById(2796);
+        int orderId = orderCreationPrecondition();
+        deleteOrderById(orderId);
     }
 
+    @Test
+    public void courierOrderAvailabilityForbiddenForStudent() {
+        Response response = executeGetMethodByStudent("/orders/available");
+        Assertions.assertEquals(response.statusCode(), HttpStatus.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void courierOrderAssignForbiddenForStudent() {
+        int orderId = orderCreationPrecondition();
+        Response response = executePutMethodByStudent(String.format("orders/%s/assign", orderId));
+        Assertions.assertEquals(response.statusCode(), HttpStatus.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void changeOrderStatusForbiddenForStudent() {
+        int orderId = orderCreationPrecondition();
+        Response response = executePutMethodByStudentWithRequestBody(String.format("orders/%s/status", orderId));
+        Assertions.assertEquals(response.statusCode(), HttpStatus.SC_FORBIDDEN);
+        System.out.println();
+    }
+
+    @Test
+    public void createCourierSuccessfulTest() {
+        Response response = createCourier();
+    }
 
     public int orderCreationPrecondition() {
 
@@ -185,13 +221,15 @@ public class DeliveryTest {
         int id = given()
                 .header("Content-type", "application/json")
                 .header("Authorization", "Bearer " + token)
-                .body( gson.toJson( orderRealDto ) )
+                .body(gson.toJson(orderRealDto))
                 .log()
                 .all()
                 .post("/orders")
                 .then()
                 .log()
                 .all()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .path("id");
 
@@ -209,9 +247,96 @@ public class DeliveryTest {
                 .delete("/orders/" + id)
                 .then()
                 .log()
-                .all()
-                .assertThat()
-                .statusCode(200);
+                .all();
     }
 
+    public Response executeGetMethodByStudent(String path) {
+
+        Response response = given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .log()
+                .all()
+                .get(path)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .response();
+
+        return response;
+
+    }
+
+    public Response executePutMethodByStudent(String path) {
+
+        Response response = given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .log()
+                .all()
+                .put(path)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .response();
+
+        return response;
+    }
+
+    public Response executePutMethodByStudentWithRequestBody(String path) {
+
+        String bodyWithStatus = "{\"status\":\"OPEN\"}";
+
+        Response response = given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .body(bodyWithStatus)
+                .log()
+                .all()
+                .put(path)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .response();
+
+        return response;
+
+    }
+
+
+    public Response createCourier() {
+
+        CourierCreation courierBody = new CourierCreation(generateRandomLogin(), generateRandomPassword(), generateRandomName());
+        Gson gson = new Gson();
+
+        Response response = given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .body(gson.toJson(courierBody))
+                .log()
+                .all()
+                .post("/users/courier")
+                .then()
+                .log()
+                .all()
+                .extract()
+                .response();
+
+        return response;
+    }
+
+    public String generateRandomLogin() {
+        return RandomStringUtils.random(6, true, true);
+    }
+
+    public String generateRandomPassword() {
+        return RandomStringUtils.random(8, true, true);
+    }
+
+    public String generateRandomName() {
+        return RandomStringUtils.random(5, true, false);
+    }
 }
