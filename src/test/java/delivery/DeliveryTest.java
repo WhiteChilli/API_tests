@@ -1,7 +1,7 @@
 package delivery;
 
 import com.google.gson.Gson;
-import dto.CourierCreation;
+import dto.Courier;
 import dto.OrderRealDto;
 import helpers.SetupFunctions;
 import io.restassured.RestAssured;
@@ -37,7 +37,7 @@ public class DeliveryTest {
 
         Gson gson = new Gson();
 
-        given()
+        Response response = given()
                 .header("Content-type", "application/json")
                 .header("Authorization", "Bearer " + token)
                 .body(gson.toJson(orderRealDto))
@@ -51,6 +51,8 @@ public class DeliveryTest {
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .response();
+
+        Assertions.assertNotNull( response.asString() );
     }
 
     @Test
@@ -73,7 +75,7 @@ public class DeliveryTest {
                 .extract()
                 .response();
 
-        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
@@ -211,6 +213,7 @@ public class DeliveryTest {
     @Test
     public void createCourierSuccessfulTest() {
         Response response = createCourier();
+        System.out.println();
     }
 
     public int orderCreationPrecondition() {
@@ -309,7 +312,7 @@ public class DeliveryTest {
 
     public Response createCourier() {
 
-        CourierCreation courierBody = new CourierCreation(generateRandomLogin(), generateRandomPassword(), generateRandomName());
+        Courier courierBody = new Courier(generateRandomLogin(), generateRandomPassword(), generateRandomName());
         Gson gson = new Gson();
 
         Response response = given()
