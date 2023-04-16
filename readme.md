@@ -21,11 +21,10 @@
 | 4   |         Log in with password field empty          |   OK   |
 | 5   |        Log in with all fields field empty         |   OK   |
 
-| Nr  |     UI element - Tallinn Delivery login page      | x path |
-|:----|:-------------------------------------------------:|:------:|
-| 1   |                Log in input field                 |   //input[@data-name="username-input"]   |
-| 2   |               Password input field                |   //input[@data-name="password-input"]   |
-| 3   | Password input incorrect - less than 8 characters |   //button[@data-name="signIn-button"]   |
-| 4   |      Error message when password field empty      |   //span[@class='form-error form-error_active' and @data-name='username-input-error']
-|
-| 5   |           Incorrect credentials pop-up            |   //div[@data-name='authorizationError-popup']   |
+| Nr  |     UI element - Tallinn Delivery login page      |                                       x path                                        |
+|:----|:-------------------------------------------------:|:-----------------------------------------------------------------------------------:|
+| 1   |                Log in input field                 |                        //input[@data-name="username-input"]                         |
+| 2   |               Password input field                |                        //input[@data-name="password-input"]                         |
+| 3   | Password input incorrect - less than 8 characters |                        //button[@data-name="signIn-button"]                         |
+| 4   |      Error message when password field empty      | //span[@class='form-error form-error_active' and @data-name='username-input-error'] |
+| 5   |           Incorrect credentials pop-up            |                    //div[@data-name='authorizationError-popup']                     |
