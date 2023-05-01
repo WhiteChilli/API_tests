@@ -36,7 +36,7 @@ public class DBmanager {
         Connection connection = null;
 
         try {
-//            connection = DriverManager.getConnection(url, user, password);
+//          connection = DriverManager.getConnection(url, user, password);
             connection = DriverManager.getConnection(connectionString, dbusername, password);
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {
