@@ -14,6 +14,7 @@ public class SetupFunctions {
 
     //api
     String baseUrl;
+    String baseUrlFrontEnd;
     String username;
     String password;
 
@@ -34,6 +35,7 @@ public class SetupFunctions {
             baseUrl = properties.getProperty("baseUrl");
             username = properties.getProperty("username");
             password = properties.getProperty("password");
+            baseUrlFrontEnd = properties.getProperty("baseUrlFrontEnd");
 
             //db
             dbhost = properties.getProperty("dbhost");
@@ -131,5 +133,9 @@ public class SetupFunctions {
                 extract().
                 response().
                 asString();
+    }
+
+    public String getBaseUrlFrontEnd() {
+        return baseUrlFrontEnd;
     }
 }
