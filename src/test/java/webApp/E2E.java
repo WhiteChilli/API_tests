@@ -2,6 +2,7 @@ package webApp;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import helpers.SetupFunctions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,10 +12,15 @@ import static com.codeborne.selenide.Selenide.*;
 
 public class E2E {
 
+    SetupFunctions setupFunctions = new SetupFunctions();
+    String name = setupFunctions.getUsername();
+    String pass = setupFunctions.getPassword();
+
     @BeforeEach
     public void setUp() {
         Configuration.browser = "firefox";
         open("http://51.250.6.164:3000/signin");
+
     }
 
     @AfterEach
@@ -24,9 +30,11 @@ public class E2E {
 
     @Test
     public OrderPage login() {
+
+
         LoginPage loginPage = new LoginPage();
-        loginPage.insertLogin("locmerea");
-        loginPage.insertPassword("hellouser123");
+        loginPage.insertLogin(name);
+        loginPage.insertPassword(pass);
 
         $(By.xpath("//button[@data-name='signIn-button']")).click();
 
@@ -44,11 +52,6 @@ public class E2E {
 
         $(By.xpath("//button[@data-name='createOrder-button']")).click();
     }
-
-
-//    OrderPage orderPage = LoginPage.login;
-
-//    $(By.xpath("//button[@data-name='createOrder-button']"));
 
 
 }
