@@ -10,7 +10,6 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class OrderPage {
 
-
     public void insertName (String query) {
         $(By.xpath("//input[@data-name='username-input']")).setValue(query);
     }
